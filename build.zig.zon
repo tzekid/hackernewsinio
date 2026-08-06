@@ -1,0 +1,41 @@
+.{
+    .name = .hn_continuity,
+    .version = "0.1.0-dev",
+    .fingerprint = 0x65792c27ffad5d59,
+    .minimum_zig_version = "0.17.0-dev.1509+bb296ab9b",
+    .dependencies = .{
+        .turso = .{
+            .url = "git+https://github.com/tzekid/turso.zig.git#f1b82da9f9207bee085808ad6a8686a9780ed76d",
+            .hash = "turso-0.1.1-ff0GezXoDwAMZX7O8cWUPC_EQPxKZKliJKLGE9SnQBC3",
+        },
+        .web = .{
+            .url = "git+https://github.com/tzekid/web.zig.git#bed5729051202c397d10b6ee8f1310701bca8efd",
+            .hash = "web-0.1.0-dev-_XMZoxn0AADNJPaF7YZ77hxV4qFxqcKkLHQ_pLFeaMbU",
+        },
+        .htmx = .{
+            .url = "https://registry.npmjs.org/htmx.org/-/htmx.org-4.0.0-beta6.tgz",
+            .hash = "N-V-__8AAAhgEwDAjNbK-jyLU6nTMMKc_ANn0ykLH11Y8Mrg",
+        },
+        .passcay = .{
+            .url = "git+https://github.com/uzyn/passcay.git#3.1.0",
+            .hash = "passcay-3.1.0-ckLGcmQzBAC1vu-rL_dmObKye8Fbs8qHsFUeDtRAr1ni",
+        },
+        .zbor = .{
+            .url = "git+https://codeberg.org/r4gus/zbor?ref=0.21.2#658c1c0ec607557b52d2e2a42acbfad31058ecee",
+            .hash = "zbor-0.21.2-kr-CoPF7AwAU2EqWqJzgxd1jHhpaaRBK0_c1LCgiwTbn",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        ".zigversion",
+        ".zig-sha256",
+        "src",
+        "assets",
+        "tests",
+        "deploy",
+        "scripts",
+        "docs",
+        "README.md",
+    },
+}

@@ -1,0 +1,3 @@
+{"by":"sasha","descendants":2,"id":100,"kids":[101],"score":120,"time":1700000000,"title":"SQLite 3.46: JSON5, underscore literals, and more","type":"story","url":"https://sqlite.org/"}
+{"by":"awce","id":101,"kids":[102],"parent":100,"text":"SQLite getting JSON5 is huge. It removes a lot of friction.","time":1700000010,"type":"comment"}
+{"by":"other","id":102,"parent":101,"text":"Yes, I agree. The relaxed parser is a practical upgrade.","time":1700000020,"type":"comment"}

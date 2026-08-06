@@ -1,0 +1,21 @@
+# Replace hn.example.com with the one canonical origin used by the service.
+hn.example.com {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		-Server
+	}
+
+	request_body {
+		max_size 256KB
+	}
+
+	reverse_proxy 127.0.0.1:8086 {
+		header_up X-Forwarded-Proto {scheme}
+		transport http {
+			dial_timeout 2s
+		}
+	}
+}

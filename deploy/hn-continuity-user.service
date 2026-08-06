@@ -1,0 +1,38 @@
+[Unit]
+Description=HN Continuity server-rendered client
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/.local/share/hn-continuity
+ExecStartPre=%h/.local/opt/hn-continuity/current/bin/hn-continuity status %h/.local/share/hn-continuity/continuity.db
+ExecStart=%h/.local/opt/hn-continuity/current/bin/hn-continuity serve %h/.local/share/hn-continuity/continuity.db --listen 127.0.0.1:9333 --origin https://hn.plosca.ru --rp-id hn.plosca.ru --secure
+Restart=on-failure
+RestartSec=3s
+TimeoutStopSec=45s
+KillSignal=SIGTERM
+UMask=0077
+
+NoNewPrivileges=yes
+PrivateDevices=yes
+PrivateTmp=yes
+ProtectClock=yes
+ProtectControlGroups=yes
+ProtectKernelLogs=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictNamespaces=yes
+RestrictRealtime=yes
+LockPersonality=yes
+MemoryHigh=192M
+MemoryMax=256M
+TasksMax=64
+LimitNOFILE=2048
+CapabilityBoundingSet=
+AmbientCapabilities=
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=default.target

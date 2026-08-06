@@ -1,0 +1,45 @@
+[Unit]
+Description=HN Continuity server-rendered client
+After=local-fs.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=hn-continuity
+Group=hn-continuity
+WorkingDirectory=/var/lib/hn-continuity
+EnvironmentFile=/etc/hn-continuity.env
+ExecStartPre=/opt/hn-continuity/bin/hn-continuity status /var/lib/hn-continuity/continuity.db
+ExecStart=/opt/hn-continuity/bin/hn-continuity serve /var/lib/hn-continuity/continuity.db --listen 127.0.0.1:${HNC_PORT} --origin ${HNC_ORIGIN} --rp-id ${HNC_RP_ID} --secure
+Restart=on-failure
+RestartSec=3s
+TimeoutStopSec=45s
+KillSignal=SIGTERM
+UMask=0077
+
+NoNewPrivileges=yes
+PrivateDevices=yes
+PrivateTmp=yes
+ProtectClock=yes
+ProtectControlGroups=yes
+ProtectHome=yes
+ProtectHostname=yes
+ProtectKernelLogs=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/hn-continuity
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictNamespaces=yes
+RestrictRealtime=yes
+LockPersonality=yes
+MemoryHigh=192M
+MemoryMax=256M
+TasksMax=64
+LimitNOFILE=2048
+CapabilityBoundingSet=
+AmbientCapabilities=
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target
