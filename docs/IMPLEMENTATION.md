@@ -23,6 +23,13 @@ export/deletion, and deployment operations are implemented in the single
 binary. Identity backfills are durable jobs and can be resumed after a process
 restart.
 
+Thread acquisition is also durable and restart-safe, but deliberately separate
+from the HTTP path. Opening `/item/:id` queues a deduplicated bounded backfill
+and immediately renders the stored snapshot. If nothing is stored yet, the
+server returns an honest loading state with refresh and native-HN links. The
+background worker checks for new work each second; slow Firebase item requests
+cannot monopolize the HTTP listener.
+
 Inbox dismissal is a local attention-ledger state: dismissed cards leave
 unread/live/Atom projections but their source event and reasons remain in the
 database and account export. Thread comments are rendered in deterministic
@@ -56,6 +63,11 @@ collapsible threads,
 authenticated live count state, private Atom, user-state export, response
 security headers, and verified backup/restore.
 
+The thread regression journey restarts against a fixture that delays the root
+HN item by three seconds. The saved thread and a second readiness request must
+both complete within two seconds and one second respectively while acquisition
+continues in the background.
+
 Production proxy qualification found and fixed one connection-lifecycle defect
 before acceptance: the single-connection accept loop had allowed an upstream
 keep-alive socket to wait for more requests, which let Caddy monopolize the
@@ -71,7 +83,7 @@ identity/watch reasons, replay idempotence, and passkey policy.
 ## Measured local baseline
 
 On the development host, the accepted ReleaseSafe statically linked binary is
-31,557,464 bytes. An empty initialized database begins at 4,096 bytes before
+31,581,464 bytes. An empty initialized database begins at 4,096 bytes before
 normal WAL/checkpoint growth. A measured fresh initialization completed in
 0.01 seconds at 20,624 KiB maximum resident set; an integrity-checked status
 read completed below the timer's 0.01-second resolution at 16,216 KiB maximum

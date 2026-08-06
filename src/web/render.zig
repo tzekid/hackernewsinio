@@ -263,7 +263,8 @@ pub fn thread(allocator: std.mem.Allocator, store: *database_mod.Store, session:
     var story_rows = try store.connection.queryParams("SELECT COALESCE(c.title_text,'Item '||i.id),c.url,i.score,i.comment_count,i.author,i.dead,i.deleted FROM items i LEFT JOIN item_content c ON c.item_id=i.id WHERE i.id=?1", .{story_id}, .{});
     defer story_rows.deinit();
     const story = (try story_rows.next()) orelse {
-        try writer.writeAll("<h1>Thread unavailable</h1><p>This item has not been materialized locally yet.</p>");
+        try writer.writeAll("<h1>Thread loading</h1><p>This item is being materialized in the background. The rest of the site remains available while it loads.</p>");
+        try writer.print("<p><a href=\"/item/{d}\">Refresh thread</a> · <a href=\"https://news.ycombinator.com/item?id={d}\">Open on Hacker News ↗</a></p>", .{ story_id, story_id });
         try story_rows.finish(null);
         try finish(writer, .thread, session != null);
         return out.toOwnedSlice();
@@ -276,6 +277,17 @@ pub fn thread(allocator: std.mem.Allocator, store: *database_mod.Store, session:
     if (try story.get(?[]const u8, 4)) |author| try html.text(writer, author);
     try writer.writeAll("</p></article>");
     try story_rows.finish(null);
+    var job_rows = try store.connection.queryParams("SELECT state FROM thread_backfills WHERE story_id=?1", .{story_id}, .{});
+    defer job_rows.deinit();
+    if (try job_rows.next()) |job| {
+        const state = try job.get([]const u8, 0);
+        if (std.mem.eql(u8, state, "pending") or std.mem.eql(u8, state, "running")) {
+            try writer.print("<p class=\"boundary\">Loading the complete thread in the background. This saved snapshot is available now. <a href=\"/item/{d}\">Refresh</a></p>", .{story_id});
+        } else if (std.mem.eql(u8, state, "failed")) {
+            try writer.print("<p class=\"boundary\">The latest thread refresh failed. <a href=\"/item/{d}\">Retry</a> or open the native HN thread below.</p>", .{story_id});
+        }
+    }
+    try job_rows.finish(null);
     if (session) |auth| {
         try writer.print("<form class=\"actions\" method=\"post\" action=\"/watches\"><input type=\"hidden\" name=\"csrf\" value=\"", .{});
         try html.attribute(writer, auth.csrf_token);

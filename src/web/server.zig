@@ -9,7 +9,6 @@ const hn_client = @import("../hn/client.zig");
 const render = @import("render.zig");
 const auth_service = @import("../auth/service.zig");
 const sync_mod = @import("../ingest/sync.zig");
-const backfill = @import("../ingest/backfill.zig");
 const jobs = @import("../ingest/jobs.zig");
 
 const app_css = @embedFile("app_css");
@@ -125,7 +124,11 @@ const SyncWorker = struct {
             }) catch |err| std.log.warn("HN sync iteration failed: {s}", .{@errorName(err)});
             _ = jobs.runOne(&store, self.allocator, hn, std.Io.Timestamp.now(io, .real).toSeconds()) catch |err| std.log.warn("background job failed: {s}", .{@errorName(err)});
             var seconds: usize = 0;
-            while (seconds < 30 and !self.stop.load(.acquire)) : (seconds += 1) sleepSecond();
+            while (seconds < 30 and !self.stop.load(.acquire)) : (seconds += 1) {
+                sleepSecond();
+                if (self.stop.load(.acquire)) break;
+                _ = jobs.runOne(&store, self.allocator, hn, std.Io.Timestamp.now(io, .real).toSeconds()) catch |err| std.log.warn("background job failed: {s}", .{@errorName(err)});
+            }
         }
     }
 };
@@ -212,7 +215,7 @@ fn handle(context: *Context, request: *std.http.Server.Request) !void {
     if (request.head.method == .GET and std.mem.startsWith(u8, path, "/item/")) {
         const story_id = parsePathId(path, "/item/") catch return problem(context, request, .not_found, "item not found");
         const current = std.Io.Timestamp.now(context.io, .real).toSeconds();
-        _ = backfill.thread(context.store, context.allocator, context.hn, story_id, 500, current) catch {};
+        try jobs.enqueueThread(context.store, story_id, current);
         const focus_text = queryValue(allocator, target, "focus") catch "";
         const focus = if (focus_text.len == 0) null else std.fmt.parseInt(i64, focus_text, 10) catch null;
         const previous_seen = if (auth) |selected| try threadMarker(context.store, selected.user_id, story_id) else null;
@@ -501,7 +504,6 @@ fn addIdentity(context: *Context, allocator: std.mem.Allocator, request: *std.ht
     const inserted = try context.store.connection.execParams("INSERT INTO hn_identities(id,user_id,username,state,profile_created_at,profile_karma,added_at) VALUES(?1,?2,?3,'pending_preview',?4,?5,?6) ON CONFLICT DO NOTHING", .{ id, auth.user_id, username, created, karma, current }, .{});
     if (inserted == 0) return response.redirect(request, "/settings", .see_other, security(context).slice());
     try jobs.enqueueIdentity(context.store, id, auth.user_id, username, current);
-    _ = jobs.runOne(context.store, context.allocator, context.hn, current) catch |err| std.log.warn("identity backfill job failed: {s}", .{@errorName(err)});
     return response.redirect(request, "/settings", .see_other, security(context).slice());
 }
 

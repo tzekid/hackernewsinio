@@ -58,6 +58,12 @@ grep -q 'does not prove that you own' "$work/identity-preview.html"
 curl -fsS -H "Cookie: $cookie" -H "Origin: $origin" -X POST \
   --data-urlencode "csrf=$csrf" --data-urlencode 'username=awce' --data-urlencode 'confirm=yes' \
   http://127.0.0.1:19084/settings/identities -o /dev/null
+for _ in $(seq 1 200); do
+  curl -fsS -H "Cookie: $cookie" http://127.0.0.1:19084/settings >"$work/settings-backfill.html"
+  grep -q 'awce <span class="meta">active' "$work/settings-backfill.html" && break
+  sleep 0.02
+done
+grep -q 'awce <span class="meta">active' "$work/settings-backfill.html"
 curl -fsS -H "Cookie: $cookie" -H "Origin: $origin" -X POST \
   --data-urlencode "csrf=$csrf" --data-urlencode 'scope_kind=comment_branch' --data-urlencode 'scope_item_id=101' \
   http://127.0.0.1:19084/watches -o /dev/null
@@ -67,8 +73,18 @@ kill -TERM "$app_pid"
 wait "$app_pid"
 app_pid=
 "$app" replay "$work/app.db" tests/fixtures/replay.ndjson >/dev/null
+kill "$fixture_pid"
+wait "$fixture_pid" 2>/dev/null || true
+fixture_pid=
+"$fixture" 19083 3000 >"$work/slow-fixture.log" 2>&1 & fixture_pid=$!
+for _ in $(seq 1 100); do curl -fsS http://127.0.0.1:19083/v0/maxitem.json >/dev/null 2>&1 && break; sleep 0.02; done
 "$app" serve "$work/app.db" --listen 127.0.0.1:19084 --hn-base http://127.0.0.1:19083/v0 >"$work/app-restarted.log" 2>&1 & app_pid=$!
 for _ in $(seq 1 200); do curl -fsS http://127.0.0.1:19084/readyz >/dev/null 2>&1 && break; sleep 0.02; done
+
+# A slow upstream thread fetch must not delay the saved snapshot or block health.
+curl -fsS --max-time 2 -H "Cookie: $cookie" http://127.0.0.1:19084/item/100 >"$work/thread-immediate.html"
+grep -q 'Loading the complete thread in the background' "$work/thread-immediate.html"
+curl -fsS --max-time 1 http://127.0.0.1:19084/readyz >/dev/null
 
 curl -fsS -H "Cookie: $cookie" http://127.0.0.1:19084/inbox >"$work/inbox.html"
 grep -q 'relaxed parser' "$work/inbox.html"

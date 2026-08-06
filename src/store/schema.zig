@@ -1,4 +1,4 @@
-pub const version: i64 = 1;
+pub const version: i64 = 2;
 
 pub const bootstrap =
     \\PRAGMA foreign_keys = ON;
@@ -277,4 +277,20 @@ pub const migration_1 =
     \\  revoked_at INTEGER,
     \\  FOREIGN KEY(user_id) REFERENCES app_users(id) ON DELETE CASCADE
     \\);
+;
+
+pub const migration_2 =
+    \\CREATE TABLE thread_backfills (
+    \\  story_id INTEGER PRIMARY KEY CHECK (story_id >= 0),
+    \\  state TEXT NOT NULL CHECK (state IN ('pending','running','succeeded','failed')),
+    \\  position INTEGER NOT NULL DEFAULT 0 CHECK (position >= 0),
+    \\  limit_value INTEGER NOT NULL CHECK (limit_value BETWEEN 1 AND 2000),
+    \\  attempt_count INTEGER NOT NULL DEFAULT 0 CHECK (attempt_count >= 0),
+    \\  last_error_class TEXT,
+    \\  created_at INTEGER NOT NULL,
+    \\  started_at INTEGER,
+    \\  updated_at INTEGER NOT NULL,
+    \\  finished_at INTEGER
+    \\);
+    \\CREATE INDEX thread_backfills_ready ON thread_backfills(state, updated_at, story_id);
 ;

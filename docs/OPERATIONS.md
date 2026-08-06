@@ -12,10 +12,10 @@ The first production deployment was accepted on 2026-08-06:
 
 - public origin: `https://hn.plosca.ru`;
 - service: `hn-continuity.service`, enabled in the user's `default.target`;
-- selected release: `%h/.local/opt/hn-continuity/releases/20260806-02`;
+- selected release: `%h/.local/opt/hn-continuity/releases/20260806-03`;
 - database: `%h/.local/share/hn-continuity/continuity.db`;
 - verified pre-upgrade backup:
-  `%h/.local/share/hn-continuity/backups/continuity-20260806-pre-02.db`;
+  `%h/.local/share/hn-continuity/backups/continuity-20260806-pre-03.db`;
 - proxy: Cloudio-owned `hn.plosca.ru -> 127.0.0.1:9333` Caddy route;
 - TLS: automatically managed by Caddy with a publicly trusted certificate.
 
@@ -23,6 +23,11 @@ Public acceptance covered repeated and concurrent readiness requests, News,
 History, registration, exact production WebAuthn RP/origin options, wrong-origin
 rejection, authenticated-route redirection, security headers, a real HN thread,
 process restart, cursor advancement, and exact release-binary checksums.
+
+Release `20260806-03` migrated production to schema v2 after a verified
+stopped-writer backup. The reported 121-comment thread at `/item/49195231`
+then rendered its saved snapshot in 79 ms while readiness and News remained
+responsive during background refresh.
 
 ## Runtime shape
 
@@ -35,6 +40,12 @@ item cursor every 30 seconds, captures ranked feeds every five minutes, retries
 recorded gaps, and reconciles known changed items from `/updates`. Firebase SSE
 parsing is implemented and replay-tested, but polling remains the correctness
 path and the deployed upstream transport in v1.
+
+Opening a thread never performs upstream acquisition on the HTTP connection.
+It renders the current durable snapshot, enqueues one deduplicated
+`thread_backfills` row, and lets the background worker materialize the bounded
+comment tree. A slow or unavailable HN item endpoint can delay freshness but
+must not delay `/item/*`, `/healthz`, `/readyz`, or unrelated pages.
 
 ## First install
 

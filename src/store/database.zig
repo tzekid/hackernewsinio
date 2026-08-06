@@ -44,6 +44,23 @@ pub const Store = struct {
             };
             try transaction.commit(&diagnostics);
         }
+        if (current < 2) {
+            var transaction = try self.connection.begin(.immediate, .{ .diagnostics = &diagnostics });
+            defer transaction.deinit();
+            _ = transaction.execBatch(schema.migration_2, .{ .diagnostics = &diagnostics }) catch |err| {
+                std.log.err("schema migration 2 failed: {s}", .{diagnostics.text()});
+                return err;
+            };
+            _ = transaction.execParams(
+                "INSERT INTO schema_migrations(version,name,applied_at,app_version) VALUES(2,'asynchronous-thread-backfill',?1,?2)",
+                .{ now, app_version },
+                .{ .diagnostics = &diagnostics },
+            ) catch |err| {
+                std.log.err("schema migration record failed: {s}", .{diagnostics.text()});
+                return err;
+            };
+            try transaction.commit(&diagnostics);
+        }
         try self.requireCurrent();
     }
 

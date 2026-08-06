@@ -36,6 +36,7 @@ source progress
   ingest_cursors
   ingest_gaps
   background_jobs
+  thread_backfills
 
 private application state
   app_users
@@ -242,6 +243,27 @@ reprocessing.
 
 Do not use this as a generic distributed queue. One process claims/executes
 known job types, and all state transitions are transactionally checked.
+
+### `thread_backfills`
+
+Durable, globally deduplicated acquisition state for an HN story's bounded
+comment tree. This is separate from user-owned `background_jobs`: opening a
+public thread may enqueue it, but the HTTP request only renders the stored
+snapshot and never waits on Hacker News.
+
+| Column | Meaning |
+| --- | --- |
+| `story_id` PK | HN root story and deduplication key |
+| `state` | `pending`, `running`, `succeeded`, or `failed` |
+| `position` | Number of comments materialized by the completed attempt |
+| `limit_value` | Frozen maximum comments for the job |
+| `attempt_count` | Bounded retry counter |
+| `last_error_class` nullable | Typed diagnostic without upstream content |
+| timestamps | Created/started/updated/finished |
+
+A process restart resumes `pending` or `running` work. A user may explicitly
+retry a failed row by reopening the thread; a succeeded row is not requeued
+because the global item cursor handles comments created afterward.
 
 ### `job_runs`
 

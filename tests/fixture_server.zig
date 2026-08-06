@@ -3,8 +3,9 @@ const std = @import("std");
 pub fn main(init: std.process.Init) !void {
     const allocator = init.arena.allocator();
     const args = try init.minimal.args.toSlice(allocator);
-    if (args.len != 2) return error.ExpectedPort;
+    if (args.len < 2 or args.len > 3) return error.ExpectedPortAndOptionalStoryDelay;
     const port = try std.fmt.parseInt(u16, args[1], 10);
+    const story_delay_ms = if (args.len == 3) try std.fmt.parseInt(u64, args[2], 10) else 0;
     var address: std.Io.net.IpAddress = .{ .ip4 = .loopback(port) };
     var listener = try address.listen(init.io, .{ .reuse_address = true });
     defer listener.deinit(init.io);
@@ -19,6 +20,9 @@ pub fn main(init: std.process.Init) !void {
             stream.close(init.io);
             continue;
         };
+        if (story_delay_ms > 0 and std.mem.eql(u8, request.head.target, "/v0/item/100.json")) {
+            try init.io.sleep(.fromMilliseconds(@intCast(story_delay_ms)), .awake);
+        }
         const body = route(request.head.target);
         try request.respond(body.bytes, .{
             .status = body.status,
