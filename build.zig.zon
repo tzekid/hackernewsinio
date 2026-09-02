@@ -2,7 +2,7 @@
     .name = .hn_continuity,
     .version = "0.1.0-dev",
     .fingerprint = 0x65792c27ffad5d59,
-    .minimum_zig_version = "0.17.0-dev.1509+bb296ab9b",
+    .minimum_zig_version = "0.17.0-dev.1963+e00c6c439",
     .dependencies = .{
         .turso = .{
             .url = "git+https://github.com/tzekid/turso.zig.git#f1b82da9f9207bee085808ad6a8686a9780ed76d",
@@ -16,9 +16,10 @@
             .url = "https://registry.npmjs.org/htmx.org/-/htmx.org-4.0.0-beta6.tgz",
             .hash = "N-V-__8AAAhgEwDAjNbK-jyLU6nTMMKc_ANn0ykLH11Y8Mrg",
         },
+        // Passcay 3.1.0 with Zig 0.17 RSA pointer compatibility patches.
         .passcay = .{
-            .url = "git+https://github.com/uzyn/passcay.git#3.1.0",
-            .hash = "passcay-3.1.0-ckLGcmQzBAC1vu-rL_dmObKye8Fbs8qHsFUeDtRAr1ni",
+            .url = "git+https://github.com/tzekid/passcay.git#90ab8576a69baba0779583a716fca4c39d3561c8",
+            .hash = "passcay-3.1.0-ckLGcnwzBAA-QYZDDPzodVmJwdzLMEKcEsk2Z4ltGNCv",
         },
         .zbor = .{
             .url = "git+https://codeberg.org/r4gus/zbor?ref=0.21.2#658c1c0ec607557b52d2e2a42acbfad31058ecee",

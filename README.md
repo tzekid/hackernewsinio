@@ -48,7 +48,7 @@ not proof of ownership.
 
 ## Stack
 
-- Zig `0.17.0-dev.1509+bb296ab9b`, checksummed in `.zig-sha256`;
+- Zig `0.17.0-dev.1963+e00c6c439`, checksummed in `.zig-sha256`;
 - `web.zig` at commit `bed5729051202c397d10b6ee8f1310701bca8efd`;
 - `turso.zig` at commit `f1b82da9f9207bee085808ad6a8686a9780ed76d`,
   built locally without cloud sync;
