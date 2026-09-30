@@ -2,7 +2,7 @@
     .name = .hn_continuity,
     .version = "0.1.0-dev",
     .fingerprint = 0x65792c27ffad5d59,
-    .minimum_zig_version = "0.17.0-dev.2307+392b17125",
+    .minimum_zig_version = "0.17.0-dev.2338+b46a7f3a2",
     .dependencies = .{
         .turso = .{
             .url = "git+https://github.com/tzekid/turso.zig.git#f1b82da9f9207bee085808ad6a8686a9780ed76d",
