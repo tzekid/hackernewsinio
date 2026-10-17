@@ -5,7 +5,7 @@
     .minimum_zig_version = "0.18.0-dev.253+16d31ceed",
     .dependencies = .{
         .turso = .{
-            .url = "git+https://github.com/tzekid/turso.zig.git#e74c3a2b0c012d343c7ba7d7cc6322f044e84a9f",
+            .url = "git+https://github.com/tzekid/turso.zig.git#38f843a81e6208bdea5902399061ff75d07d44c0",
             .hash = "turso-0.1.1-ff0Ge7foDgCLbR5YzZiFHzYxwXp9fJ7PijIHF7S_s79-",
         },
         .web = .{
@@ -16,14 +16,12 @@
             .url = "https://registry.npmjs.org/htmx.org/-/htmx.org-4.0.0-beta6.tgz",
             .hash = "N-V-__8AAAhgEwDAjNbK-jyLU6nTMMKc_ANn0ykLH11Y8Mrg",
         },
-        // Passcay 3.1.0 with Zig 0.17 RSA pointer compatibility patches.
+        // Pinned Passcay/Zbor snapshots; provenance and build patch in vendor/.
         .passcay = .{
-            .url = "git+https://github.com/tzekid/passcay.git#90ab8576a69baba0779583a716fca4c39d3561c8",
-            .hash = "passcay-3.1.0-ckLGcnwzBAA-QYZDDPzodVmJwdzLMEKcEsk2Z4ltGNCv",
+            .path = "vendor/passcay",
         },
         .zbor = .{
-            .url = "git+https://codeberg.org/r4gus/zbor?ref=0.21.2#658c1c0ec607557b52d2e2a42acbfad31058ecee",
-            .hash = "zbor-0.21.2-kr-CoPF7AwAU2EqWqJzgxd1jHhpaaRBK0_c1LCgiwTbn",
+            .path = "vendor/zbor",
         },
     },
     .paths = .{
@@ -32,6 +30,7 @@
         ".zigversion",
         ".zig-sha256",
         "src",
+        "vendor",
         "assets",
         "tests",
         "deploy",
