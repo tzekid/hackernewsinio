@@ -2,11 +2,11 @@
     .name = .hn_continuity,
     .version = "0.1.0-dev",
     .fingerprint = 0x65792c27ffad5d59,
-    .minimum_zig_version = "0.17.0",
+    .minimum_zig_version = "0.18.0-dev.253+16d31ceed",
     .dependencies = .{
         .turso = .{
-            .url = "git+https://github.com/tzekid/turso.zig.git#f1b82da9f9207bee085808ad6a8686a9780ed76d",
-            .hash = "turso-0.1.1-ff0GezXoDwAMZX7O8cWUPC_EQPxKZKliJKLGE9SnQBC3",
+            .url = "git+https://github.com/tzekid/turso.zig.git#e74c3a2b0c012d343c7ba7d7cc6322f044e84a9f",
+            .hash = "turso-0.1.1-ff0Ge7foDgCLbR5YzZiFHzYxwXp9fJ7PijIHF7S_s79-",
         },
         .web = .{
             .url = "git+https://github.com/tzekid/web.zig.git#bed5729051202c397d10b6ee8f1310701bca8efd",
